@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust Syntax Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            border-left: 3px solid #3498db;
+        }
+        
+        .syntax-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .syntax-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+        }
+        
+        .highlight {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            border-left: 3px solid #e17055;
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .quick-ref {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .quick-ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .quick-ref-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦀 Rust Syntax Cheat Sheet</h1>
+        
+        <input type="text" class="search-box" placeholder="🔍 Search syntax (e.g., 'variable', 'loop', 'struct')..." oninput="filterCards(this.value)">
+        
+        <div class="quick-ref">
+            <h3>Quick Reference</h3>
+            <div class="quick-ref-grid">
+                <div class="quick-ref-item">let x = 5;</div>
+                <div class="quick-ref-item">fn name() {}</div>
+                <div class="quick-ref-item">struct Name {}</div>
+                <div class="quick-ref-item">enum Option&lt;T&gt;</div>
+                <div class="quick-ref-item">match x { }</div>
+                <div class="quick-ref-item">for i in 0..10</div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <div class="card" data-keywords="variable let mut const binding">
+                <h2><span class="emoji">📦</span>Variables & Constants</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Immutable variable</div>
+                    <div class="code-block">let x = 5;
+let name = "Alice";</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Mutable variable</div>
+                    <div class="code-block">let mut count = 0;
+count += 1;</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Constants</div>
+                    <div class="code-block">const MAX_SIZE: usize = 100;</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Type annotations</div>
+                    <div class="code-block">let x: i32 = 42;
+let y: f64 = 3.14;</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="function fn return parameter argument">
+                <h2><span class="emoji">⚙️</span>Functions</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Basic function</div>
+                    <div class="code-block">fn greet() {
+    println!("Hello!");
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">With parameters</div>
+                    <div class="code-block">fn add(x: i32, y: i32) -> i32 {
+    x + y  // No semicolon = return
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Multiple returns</div>
+                    <div class="code-block">fn divide(x: f64, y: f64) -> (f64, f64) {
+    (x / y, x % y)
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="data type integer float string bool char">
+                <h2><span class="emoji">🔢</span>Data Types</h2>
+                <div class="two-col">
+                    <div>
+                        <div class="syntax-label">Integers</div>
+                        <div class="code-block">i8, i16, i32, i64, i128
+u8, u16, u32, u64, u128
+isize, usize</div>
+                        
+                        <div class="syntax-label">Floats</div>
+                        <div class="code-block">f32, f64</div>
+                    </div>
+                    <div>
+                        <div class="syntax-label">Others</div>
+                        <div class="code-block">bool: true, false
+char: 'A', '🦀'
+&str: "Hello"
+String: String::from("Hi")</div>
+                    </div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Arrays & Vectors</div>
+                    <div class="code-block">let arr = [1, 2, 3, 4, 5];
+let vec = vec![1, 2, 3, 4, 5];</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="control flow if else match loop while for">
+                <h2><span class="emoji">🔀</span>Control Flow</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">If statements</div>
+                    <div class="code-block">if x > 5 {
+    println!("Big");
+} else if x > 0 {
+    println!("Small");
+} else {
+    println!("Zero or negative");
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Match expressions</div>
+                    <div class="code-block">match value {
+    1 => println!("One"),
+    2 | 3 => println!("Two or three"),
+    4..=10 => println!("Four to ten"),
+    _ => println!("Something else"),
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="loop while for iterator range">
+                <h2><span class="emoji">🔄</span>Loops</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">For loops</div>
+                    <div class="code-block">for i in 0..5 {
+    println!("{}", i);
+}
+
+for item in vec.iter() {
+    println!("{}", item);
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">While & loop</div>
+                    <div class="code-block">while condition {
+    // code
+}
+
+loop {
+    // infinite loop
+    break; // exit
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="struct implementation impl method">
+                <h2><span class="emoji">🏗️</span>Structs</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Define struct</div>
+                    <div class="code-block">struct Person {
+    name: String,
+    age: u32,
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Create instance</div>
+                    <div class="code-block">let person = Person {
+    name: String::from("Alice"),
+    age: 30,
+};</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Methods</div>
+                    <div class="code-block">impl Person {
+    fn greet(&self) {
+        println!("Hi, I'm {}", self.name);
+    }
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="enum option result variant">
+                <h2><span class="emoji">🎯</span>Enums</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Basic enum</div>
+                    <div class="code-block">enum Color {
+    Red,
+    Green,
+    Blue,
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Enum with data</div>
+                    <div class="code-block">enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Option & Result</div>
+                    <div class="code-block">Option&lt;T&gt;: Some(value) | None
+Result&lt;T, E&gt;: Ok(value) | Err(error)</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="ownership borrow reference pointer">
+                <h2><span class="emoji">🔐</span>Ownership & Borrowing</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Ownership transfer</div>
+                    <div class="code-block">let s1 = String::from("hello");
+let s2 = s1; // s1 no longer valid</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Borrowing (immutable)</div>
+                    <div class="code-block">let s1 = String::from("hello");
+let len = calculate_length(&s1);</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Mutable borrowing</div>
+                    <div class="code-block">let mut s = String::from("hello");
+change(&mut s);</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="vector hashmap collection array">
+                <h2><span class="emoji">📚</span>Collections</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Vectors</div>
+                    <div class="code-block">let mut v = Vec::new();
+v.push(1);
+let v2 = vec![1, 2, 3];</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">HashMap</div>
+                    <div class="code-block">use std::collections::HashMap;
+let mut map = HashMap::new();
+map.insert("key", "value");</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">String methods</div>
+                    <div class="code-block">let mut s = String::new();
+s.push_str("hello");
+s.push('!');</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="error handling result option unwrap expect">
+                <h2><span class="emoji">⚠️</span>Error Handling</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Result handling</div>
+                    <div class="code-block">match result {
+    Ok(value) => println!("Success: {}", value),
+    Err(error) => println!("Error: {}", error),
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Question mark operator</div>
+                    <div class="code-block">fn read_file() -> Result&lt;String, Error&gt; {
+    let content = fs::read_to_string("file.txt")?;
+    Ok(content)
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Option handling</div>
+                    <div class="code-block">if let Some(value) = option {
+    println!("Got: {}", value);
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="trait implementation generic lifetime">
+                <h2><span class="emoji">🎨</span>Traits & Generics</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Define trait</div>
+                    <div class="code-block">trait Drawable {
+    fn draw(&self);
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Implement trait</div>
+                    <div class="code-block">impl Drawable for Circle {
+    fn draw(&self) {
+        // drawing code
+    }
+}</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Generic function</div>
+                    <div class="code-block">fn largest&lt;T: PartialOrd&gt;(list: &[T]) -> &T {
+    // implementation
+}</div>
+                </div>
+            </div>
+
+            <div class="card" data-keywords="macro println format debug">
+                <h2><span class="emoji">🎭</span>Macros & Printing</h2>
+                <div class="syntax-item">
+                    <div class="syntax-label">Print macros</div>
+                    <div class="code-block">println!("Hello, world!");
+println!("Value: {}", x);
+println!("Debug: {:?}", value);</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Format strings</div>
+                    <div class="code-block">format!("Hello {}", name);
+format!("Number: {:.2}", 3.14159);</div>
+                </div>
+                <div class="syntax-item">
+                    <div class="syntax-label">Common macros</div>
+                    <div class="code-block">vec![1, 2, 3]
+panic!("Something went wrong!")
+assert_eq!(a, b)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="highlight" style="text-align: center; margin-top: 30px;">
+            <strong>💡 Pro Tip:</strong> Use the search box above to quickly find specific syntax!
+        </div>
+    </div>
+
+    <script>
+        function filterCards(searchTerm) {
+            const cards = document.querySelectorAll('.card');
+            const term = searchTerm.toLowerCase();
+            
+            cards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords').toLowerCase();
+                const content = card.textContent.toLowerCase();
+                
+                if (keywords.includes(term) || content.includes(term) || term === '') {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
