@@ -292,7 +292,7 @@ Interested in our services? Reach out to our team of experts for a consultation.
         
         copyBtn.addEventListener('click', async () => {
             try {
-                await navigator.clipboard.writeText('contact@promcompute.eng');
+                await navigator.clipboard.writeText('promcompute@protonmail.com');
                 successTooltip.classList.add('show');
                 setTimeout(() => {
                     successTooltip.classList.remove('show');
@@ -301,7 +301,7 @@ Interested in our services? Reach out to our team of experts for a consultation.
                 console.error('Failed to copy text: ', err);
                 // Fallback for older browsers
                 const textArea = document.createElement('textarea');
-                textArea.value = 'contact@promcompute.eng';
+                textArea.value = 'promcompute@protonmail.com';
                 document.body.appendChild(textArea);
                 textArea.select();
                 try {
@@ -375,3 +375,4 @@ Interested in our services? Reach out to our team of experts for a consultation.
     </script>
 </body>
 </html>
+
