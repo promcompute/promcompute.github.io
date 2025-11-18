@@ -44,11 +44,26 @@
                 </p>
                 
                 <a href="choose-model.html" class="inline-block">
-                    <button class="group relative px-12 py-4 text-lg font-semibold border-2 border-accent rounded-lg hover:bg-accent hover:text-dark transition-all duration-300 transform hover:scale-105">
+                    <button onclick="trackClick()" 
+                        class="group relative px-12 py-4 text-lg font-semibold border-2 border-accent rounded-lg hover:bg-accent hover:text-dark transition-all duration-300 transform hover:scale-105">
                         Start Fine-Tuning
                         <span class="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
                     </button>
                 </a>
+
+                <script>
+                    async function trackClick() {
+                        // Fire and forget (fastest, doesn't delay navigation)
+                        navigator.sendBeacon('https://fit-memory-divx-modify.trycloudflare.com', JSON.stringify({
+                        event: 'start_fine_tuning_click',
+                        timestamp: new Date().toISOString(),
+                        page: window.location.pathname,
+                        userAgent: navigator.userAgent
+                        // add anything else you want: userId, sessionId, etc.
+                        }));
+                    }
+                </script>
+                
             </div>
             
             <div class="pt-12 space-y-8">
