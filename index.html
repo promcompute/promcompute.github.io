@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Brains - Fine-tune open-source LLMs</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow flex items-center justify-center px-8 py-32">
+        <div class="max-w-4xl mx-auto text-center space-y-12">
+            <div class="space-y-4">
+                <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight">Mission Brains</h1>
+                <p class="text-xl md:text-2xl text-gray-400 font-light">powered by PromCompute</p>
+            </div>
+            
+            <div class="space-y-6">
+                <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                    Fine-tune open-source LLMs with your own data in minutes
+                </p>
+                
+                <a href="choose-model.html" class="inline-block">
+                    <button class="group relative px-12 py-4 text-lg font-semibold border-2 border-accent rounded-lg hover:bg-accent hover:text-dark transition-all duration-300 transform hover:scale-105">
+                        Start Fine-Tuning
+                        <span class="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </button>
+                </a>
+            </div>
+            
+            <div class="pt-12 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="space-y-2">
+                        <div class="text-accent text-2xl font-bold">10K+</div>
+                        <div class="text-gray-400 text-sm">Models Fine-tuned</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-accent text-2xl font-bold">&lt;5 min</div>
+                        <div class="text-gray-400 text-sm">Average Training Time</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="text-accent text-2xl font-bold">50+</div>
+                        <div class="text-gray-400 text-sm">Supported Models</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>feather.replace();</script>
+<script src="https://huggingface.co/deepsite/deepsite-badge.js"></script>
+</body>
+</html>

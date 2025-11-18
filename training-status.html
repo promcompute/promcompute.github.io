@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Status - Mission Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow px-8 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div id="progressIndicator"></div>
+            
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4">Training in progress...</h1>
+                <p class="text-gray-400">Fine-tuning your model with your data</p>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- Loader -->
+                <div class="flex justify-center">
+                    <div class="spinner"></div>
+                </div>
+                
+                <!-- Status updates -->
+                <div id="statusContainer" class="bg-gray-900 rounded-lg p-6 border border-gray-800 space-y-4">
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <span class="pulse-dot"></span>
+                        <span>Status:</span>
+                        <span id="currentStatus" class="text-white">Initializing...</span>
+                    </div>
+                    
+                    <div id="statusLog" class="space-y-2 max-h-64 overflow-y-auto">
+                        <!-- Status updates will be added here -->
+                    </div>
+                </div>
+                
+                <!-- Progress bar -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span>Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="bg-gray-800 rounded-full h-2">
+                        <div id="progressBar" class="accent-bg h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-2">
+                        Estimated time remaining: <span id="timeRemaining">Calculating...</span>
+                    </div>
+                </div>
+                
+                <!-- Training details -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-lg font-semibold mb-4">Training Details</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Model:</span>
+                            <span id="trainingModel" class="ml-2"></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Dataset:</span>
+                            <span id="trainingDataset" class="ml-2"></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Started:</span>
+                            <span id="startTime" class="ml-2"></span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Current Loss:</span>
+                            <span id="currentLoss" class="ml-2">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize progress indicator
+        document.getElementById('progressIndicator').innerHTML = createProgressIndicator(4);
+        
+        // Get training details
+        const selectedModel = getSelectedModel();
+        const uploadedDataset = getUploadedDataset();
+        
+        if (!selectedModel || !uploadedDataset) {
+            window.location.href = 'index.html';
+        }
+        
+        // Display training details
+        document.getElementById('trainingModel').textContent = selectedModel.name;
+        document.getElementById('trainingDataset').textContent = uploadedDataset.name;
+        
+        // Training simulation
+        let currentStage = 0;
+        let totalProgress = 0;
+        const startTime = new Date();
+        document.getElementById('startTime').textContent = startTime.toLocaleTimeString();
+        
+        // Calculate total duration
+        const totalDuration = trainingStages.reduce((sum, stage) => sum + stage.duration, 0);
+        let elapsed = 0;
+        
+        // Simulate training
+        function updateTrainingStatus() {
+            if (currentStage < trainingStages.length) {
+                const stage = trainingStages[currentStage];
+                
+                // Update current status
+                document.getElementById('currentStatus').textContent = stage.message;
+                
+                // Add to log
+                const logEntry = document.createElement('div');
+                logEntry.className = 'status-item flex items-center space-x-2 text-sm';
+                logEntry.innerHTML = `
+                    <span class="text-gray-500">${new Date().toLocaleTimeString()}</span>
+                    <span class="text-gray-300">${stage.message}</span>
+                `;
+                document.getElementById('statusLog').appendChild(logEntry);
+                
+                // Update progress
+                const stageProgress = (stage.duration / totalDuration) * 100;
+                const updateInterval = 100;
+                const numUpdates = stage.duration / updateInterval;
+                const increment = stageProgress / numUpdates;
+                
+                const progressInterval = setInterval(() => {
+                    totalProgress += increment;
+                    if (totalProgress >= 100) {
+                        totalProgress = 100;
+                    }
+                    
+                    document.getElementById('progressBar').style.width = totalProgress + '%';
+                    document.getElementById('progressPercent').textContent = Math.round(totalProgress) + '%';
+                    
+                    // Update time remaining
+                    const remaining = Math.max(0, totalDuration - elapsed);
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    document.getElementById('timeRemaining').textContent = `${minutes}m ${seconds}s`;
+                    
+                    // Update loss (simulated)
+                    if (Math.random() > 0.7) {
+                        const loss = (1.5 - (totalProgress / 100) * 1.2 + Math.random() * 0.1).toFixed(4);
+                        document.getElementById('currentLoss').textContent = loss;
+                    }
+                    
+                    elapsed += updateInterval;
+                }, updateInterval);
+                
+                // Move to next stage after duration
+                setTimeout(() => {
+                    clearInterval(progressInterval);
+                    currentStage++;
+                    
+                    if (currentStage >= trainingStages.length) {
+                        // Training complete
+                        setTimeout(() => {
+                            window.location.href = 'download-model.html';
+                        }, 2000);
+                    } else {
+                        updateTrainingStatus();
+                    }
+                }, stage.duration);
+            }
+        }
+        
+        // Start training simulation
+        setTimeout(updateTrainingStatus, 1000);
+        
+        // Auto-refresh fallback
+        const fallbackTimeout = setTimeout(() => {
+            if (currentStage < trainingStages.length - 1) {
+                window.location.reload();
+            }
+        }, 30000);
+    </script>
+    <script>feather.replace();</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Model - Mission Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow px-8 py-12">
+        <div class="max-w-6xl mx-auto">
+            <div id="progressIndicator"></div>
+            
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4">1. Select your base model</h1>
+                <p class="text-gray-400">Choose from our curated selection of open-source LLMs</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <!-- Models will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="text-center">
+                <button id="continueBtn" class="button-primary" disabled>
+                    Continue →
+                </button>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize progress indicator
+        document.getElementById('progressIndicator').innerHTML = createProgressIndicator(2);
+        
+        // Render model cards
+        const modelsContainer = document.querySelector('.grid');
+        availableModels.forEach(model => {
+            const card = document.createElement('div');
+            card.className = 'model-card p-6 rounded-lg cursor-pointer';
+            card.dataset.modelId = model.id;
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-semibold">${model.name}</h3>
+                    <span class="text-accent text-sm font-semibold">${model.parameters}</span>
+                </div>
+                <p class="text-gray-400 text-sm mb-4">${model.description}</p>
+                <div class="flex items-center text-gray-500 text-sm">
+                    <i data-feather="maximize-2" class="w-4 h-4 mr-2"></i>
+                    Context: ${model.contextLength}
+                </div>
+            `;
+            
+            card.addEventListener('click', function() {
+                // Remove previous selection
+                document.querySelectorAll('.model-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Add selection to clicked card
+                this.classList.add('selected');
+                updateSelectedModel(model);
+                
+                // Enable continue button
+                document.getElementById('continueBtn').disabled = false;
+            });
+            
+            modelsContainer.appendChild(card);
+        });
+        
+        // Handle continue button
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            window.location.href = 'upload-dataset.html';
+        });
+        
+        // Restore previous selection if exists
+        const savedModel = getSelectedModel();
+        if (savedModel) {
+            const savedCard = document.querySelector(`[data-model-id="${savedModel.id}"]`);
+            if (savedCard) {
+                savedCard.classList.add('selected');
+                document.getElementById('continueBtn').disabled = false;
+            }
+        }
+    </script>
+    <script>feather.replace();</script>
+</body>
+</html>

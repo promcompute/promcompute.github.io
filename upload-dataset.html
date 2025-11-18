@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset - Mission Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow px-8 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div id="progressIndicator"></div>
+            
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4">2. Upload your training data</h1>
+                <p class="text-gray-400">Prepare your dataset for fine-tuning</p>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- Selected model display -->
+                <div id="selectedModelDisplay" class="bg-gray-900 rounded-lg p-4 border border-gray-800">
+                    <div class="text-sm text-gray-500 mb-1">Selected model:</div>
+                    <div id="modelName" class="text-lg font-semibold text-accent"></div>
+                </div>
+                
+                <!-- Upload zone -->
+                <div id="uploadZone" class="upload-zone rounded-lg p-12 text-center cursor-pointer">
+                    <div class="space-y-4">
+                        <i data-feather="upload-cloud" class="w-16 h-16 mx-auto text-gray-500"></i>
+                        <div>
+                            <p class="text-xl mb-2">Drop your file here or click to browse</p>
+                            <p class="text-sm text-gray-500">Supported formats: .jsonl, .json, .txt, .csv</p>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" accept=".jsonl,.json,.txt,.csv">
+                </div>
+                
+                <!-- File info display (hidden initially) -->
+                <div id="fileInfo" class="hidden bg-gray-900 rounded-lg p-4 border border-gray-800">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <i data-feather="file" class="w-6 h-6 text-accent"></i>
+                            <div>
+                                <div id="fileName" class="font-semibold"></div>
+                                <div id="fileSize" class="text-sm text-gray-500"></div>
+                            </div>
+                        </div>
+                        <button id="removeFile" class="text-red-500 hover:text-red-400">
+                            <i data-feather="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Advanced options toggle -->
+                <div class="text-left">
+                    <button id="advancedToggle" class="button-secondary">
+                        <i data-feather="settings" class="inline w-4 h-4 mr-2"></i>
+                        Show advanced options
+                    </button>
+                </div>
+                
+                <!-- Advanced options (hidden initially) -->
+                <div id="advancedOptions" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Learning Rate</label>
+                        <input type="text" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white" placeholder="2e-5">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Epochs</label>
+                        <input type="text" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white" placeholder="3">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Batch Size</label>
+                        <input type="text" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white" placeholder="4">
+                    </div>
+                </div>
+                
+                <!-- Action button -->
+                <div class="text-center">
+                    <button id="startTrainingBtn" class="button-accent" disabled>
+                        Start Training →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize progress indicator
+        document.getElementById('progressIndicator').innerHTML = createProgressIndicator(3);
+        
+        // Display selected model
+        const selectedModel = getSelectedModel();
+        if (selectedModel) {
+            document.getElementById('modelName').textContent = `${selectedModel.name} (${selectedModel.parameters})`;
+        } else {
+            // No model selected, redirect back
+            window.location.href = 'choose-model.html';
+        }
+        
+        // File upload handling
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const startTrainingBtn = document.getElementById('startTrainingBtn');
+        
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+        
+        function handleFile(file) {
+            if (!file) return;
+            
+            if (!validateFile(file)) {
+                alert('Please upload a valid file format (.jsonl, .json, .txt, .csv)');
+                return;
+            }
+            
+            // Update file info
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
+            
+            // Update state
+            updateUploadedDataset({
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
+            
+            // Enable training button
+            startTrainingBtn.disabled = false;
+        }
+        
+        // Remove file
+        document.getElementById('removeFile').addEventListener('click', () => {
+            fileInfo.classList.add('hidden');
+            fileInput.value = '';
+            updateUploadedDataset(null);
+            startTrainingBtn.disabled = true;
+        });
+        
+        // Advanced options toggle
+        document.getElementById('advancedToggle').addEventListener('click', () => {
+            const options = document.getElementById('advancedOptions');
+            const toggle = document.getElementById('advancedToggle');
+            
+            if (options.classList.contains('hidden')) {
+                options.classList.remove('hidden');
+                toggle.innerHTML = '<i data-feather="settings" class="inline w-4 h-4 mr-2"></i>Hide advanced options';
+            } else {
+                options.classList.add('hidden');
+                toggle.innerHTML = '<i data-feather="settings" class="inline w-4 h-4 mr-2"></i>Show advanced options';
+            }
+            feather.replace();
+        });
+        
+        // Start training
+        document.getElementById('startTrainingBtn').addEventListener('click', () => {
+            window.location.href = 'training-status.html';
+        });
+        
+        // Restore uploaded file if exists
+        const savedDataset = getUploadedDataset();
+        if (savedDataset) {
+            document.getElementById('fileName').textContent = savedDataset.name;
+            document.getElementById('fileSize').textContent = formatFileSize(savedDataset.size);
+            fileInfo.classList.remove('hidden');
+            startTrainingBtn.disabled = false;
+        }
+    </script>
+    <script>feather.replace();</script>
+</body>
+</html>
