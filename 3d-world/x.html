@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-Fi 3D World</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            cursor: crosshair;
+        }
+        
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00ffff;
+            background: rgba(0, 20, 40, 0.7);
+            padding: 15px;
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            font-size: 14px;
+            text-shadow: 0 0 10px #00ffff;
+            z-index: 100;
+        }
+        
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ffff;
+            background: rgba(0, 20, 40, 0.9);
+            padding: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 101;
+        }
+        
+        #instructions h3 {
+            margin-top: 0;
+            color: #ff00ff;
+        }
+        
+        button {
+            background: #00ffff;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #ff00ff;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <div id="hud">
+            <div>SECTOR: ALPHA-7</div>
+            <div>POSITION: <span id="position">0, 0, 0</span></div>
+            <div>ENERGY: <span id="energy">100%</span></div>
+            <div>OBJECTS SCANNED: <span id="scanned">0</span></div>
+        </div>
+        <div id="crosshair"></div>
+        <div id="instructions">
+            <h3>SPACE STATION EXPLORER</h3>
+            <p><strong>WASD</strong> - Move</p>
+            <p><strong>MOUSE</strong> - Look Around</p>
+            <p><strong>SPACE</strong> - Jump</p>
+            <p><strong>SHIFT</strong> - Run</p>
+            <p><strong>CLICK</strong> - Interact with Objects</p>
+            <button onclick="startExploration()">START EXPLORATION</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let canJump = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let prevTime = performance.now();
+        let isLocked = false;
+        let isRunning = false;
+        let energy = 100;
+        let scannedObjects = 0;
+        let interactableObjects = [];
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        
+        // Camera controls
+        let pitchObject, yawObject;
+        
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000033, 10, 500);
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            // Camera controls setup
+            pitchObject = new THREE.Object3D();
+            pitchObject.add(camera);
+            
+            yawObject = new THREE.Object3D();
+            yawObject.position.y = 10;
+            yawObject.add(pitchObject);
+            scene.add(yawObject);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0x00ffff, 0.5);
+            directionalLight.position.set(50, 100, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.camera.left = -100;
+            directionalLight.shadow.camera.right = 100;
+            directionalLight.shadow.camera.top = 100;
+            directionalLight.shadow.camera.bottom = -100;
+            scene.add(directionalLight);
+            
+            // Create the sci-fi world
+            createWorld();
+            
+            // Event listeners
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('click', onClick);
+            window.addEventListener('resize', onWindowResize);
+            
+            animate();
+        }
+        
+        function createWorld() {
+            // Floor - Metal grid platform
+            const floorGeometry = new THREE.PlaneGeometry(200, 200, 20, 20);
+            const floorMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x222244,
+                wireframe: false,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            // Grid overlay on floor
+            const gridHelper = new THREE.GridHelper(200, 40, 0x00ffff, 0x003366);
+            scene.add(gridHelper);
+            
+            // Central tower
+            createTower(0, 0, 0);
+            
+            // Floating platforms
+            for (let i = 0; i < 5; i++) {
+                const angle = (i / 5) * Math.PI * 2;
+                const x = Math.cos(angle) * 50;
+                const z = Math.sin(angle) * 50;
+                createPlatform(x, 20 + Math.random() * 20, z);
+            }
+            
+            // Energy cores (interactable)
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const x = Math.cos(angle) * 30;
+                const z = Math.sin(angle) * 30;
+                createEnergyCore(x, 5, z);
+            }
+            
+            // Holographic displays
+            for (let i = 0; i < 3; i++) {
+                createHologram(
+                    (Math.random() - 0.5) * 60,
+                    15,
+                    (Math.random() - 0.5) * 60
+                );
+            }
+            
+            // Particles
+            createParticles();
+            
+            // Skybox stars
+            createStars();
+        }
+        
+        function createTower(x, y, z) {
+            const group = new THREE.Group();
+            
+            // Main structure
+            const towerGeometry = new THREE.CylinderGeometry(8, 10, 60, 8);
+            const towerMaterial = new THREE.MeshPhongMaterial({
+                color: 0x444466,
+                emissive: 0x000033,
+                emissiveIntensity: 0.2
+            });
+            const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+            tower.position.set(0, 30, 0);
+            tower.castShadow = true;
+            group.add(tower);
+            
+            // Glowing rings
+            for (let i = 0; i < 5; i++) {
+                const ringGeometry = new THREE.TorusGeometry(12, 0.5, 8, 32);
+                const ringMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x00ffff,
+                    emissive: 0x00ffff,
+                    emissiveIntensity: 0.5
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.y = i * 12;
+                ring.rotation.x = Math.PI / 2;
+                group.add(ring);
+            }
+            
+            // Antenna
+            const antennaGeometry = new THREE.ConeGeometry(2, 20, 4);
+            const antennaMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff00ff,
+                emissive: 0xff00ff,
+                emissiveIntensity: 0.3
+            });
+            const antenna = new THREE.Mesh(antennaGeometry, antennaMaterial);
+            antenna.position.y = 70;
+            group.add(antenna);
+            
+            // Point light at top
+            const pointLight = new THREE.PointLight(0xff00ff, 2, 100);
+            pointLight.position.y = 80;
+            group.add(pointLight);
+            
+            group.position.set(x, y, z);
+            scene.add(group);
+        }
+        
+        function createPlatform(x, y, z) {
+            const platformGeometry = new THREE.BoxGeometry(20, 2, 20);
+            const platformMaterial = new THREE.MeshPhongMaterial({
+                color: 0x336699,
+                emissive: 0x001133,
+                emissiveIntensity: 0.2
+            });
+            const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+            platform.position.set(x, y, z);
+            platform.castShadow = true;
+            platform.receiveShadow = true;
+            scene.add(platform);
+            
+            // Add glowing edge
+            const edgeGeometry = new THREE.EdgesGeometry(platformGeometry);
+            const edgeMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x00ffff,
+                linewidth: 2
+            });
+            const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+            edges.position.copy(platform.position);
+            scene.add(edges);
+        }
+        
+        function createEnergyCore(x, y, z) {
+            const group = new THREE.Group();
+            
+            // Outer shell
+            const shellGeometry = new THREE.IcosahedronGeometry(3, 0);
+            const shellMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00ff00,
+                emissive: 0x00ff00,
+                emissiveIntensity: 0.5,
+                transparent: true,
+                opacity: 0.3,
+                wireframe: true
+            });
+            const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+            group.add(shell);
+            
+            // Inner core
+            const coreGeometry = new THREE.SphereGeometry(1.5, 16, 16);
+            const coreMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00ff00,
+                emissive: 0x00ff00,
+                emissiveIntensity: 1
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            group.add(core);
+            
+            // Point light
+            const light = new THREE.PointLight(0x00ff00, 1, 20);
+            group.add(light);
+            
+            group.position.set(x, y, z);
+            group.userData = { type: 'energyCore', scanned: false };
+            scene.add(group);
+            interactableObjects.push(group);
+            
+            // Animation
+            group.userData.update = function() {
+                group.rotation.y += 0.02;
+                group.children[0].rotation.x += 0.01;
+                group.position.y = y + Math.sin(Date.now() * 0.001) * 2;
+            };
+        }
+        
+        function createHologram(x, y, z) {
+            const group = new THREE.Group();
+            
+            // Hologram projection
+            const holoGeometry = new THREE.ConeGeometry(5, 10, 4);
+            const holoMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00ffff,
+                emissive: 0x00ffff,
+                emissiveIntensity: 0.8,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+            const hologram = new THREE.Mesh(holoGeometry, holoMaterial);
+            hologram.position.y = 5;
+            group.add(hologram);
+            
+            // Base projector
+            const baseGeometry = new THREE.CylinderGeometry(3, 3, 1, 8);
+            const baseMaterial = new THREE.MeshPhongMaterial({
+                color: 0x666666,
+                metalness: 0.9
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            group.add(base);
+            
+            group.position.set(x, y, z);
+            scene.add(group);
+            
+            // Animation
+            group.userData.update = function() {
+                hologram.rotation.y += 0.03;
+                hologram.material.opacity = 0.4 + Math.sin(Date.now() * 0.005) * 0.2;
+            };
+            interactableObjects.push(group);
+        }
+        
+        function createParticles() {
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCnt = 500;
+            const posArray = new Float32Array(particlesCnt * 3);
+            
+            for (let i = 0; i < particlesCnt * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 200;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.5,
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            particlesMesh.userData.update = function() {
+                particlesMesh.rotation.y += 0.0002;
+                const positions = particlesGeometry.attributes.position.array;
+                for (let i = 1; i < positions.length; i += 3) {
+                    positions[i] -= 0.01;
+                    if (positions[i] < -100) {
+                        positions[i] = 100;
+                    }
+                }
+                particlesGeometry.attributes.position.needsUpdate = true;
+            };
+            interactableObjects.push(particlesMesh);
+        }
+        
+        function createStars() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsCnt = 2000;
+            const posArray = new Float32Array(starsCnt * 3);
+            
+            for (let i = 0; i < starsCnt * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 1000;
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const starsMaterial = new THREE.PointsMaterial({
+                size: 1,
+                color: 0xffffff
+            });
+            
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+        
+        function onKeyDown(event) {
+            switch(event.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    moveForward = true;
+                    break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    moveBackward = true;
+                    break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    moveLeft = true;
+                    break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    moveRight = true;
+                    break;
+                case 'Space':
+                    if (canJump === true) velocity.y += 350;
+                    canJump = false;
+                    break;
+                case 'ShiftLeft':
+                case 'ShiftRight':
+                    isRunning = true;
+                    break;
+            }
+        }
+        
+        function onKeyUp(event) {
+            switch(event.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    moveForward = false;
+                    break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    moveBackward = false;
+                    break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    moveLeft = false;
+                    break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    moveRight = false;
+                    break;
+                case 'ShiftLeft':
+                case 'ShiftRight':
+                    isRunning = false;
+                    break;
+            }
+        }
+        
+        let mouseX = 0, mouseY = 0;
+        
+        function onMouseMove(event) {
+            if (!isLocked) return;
+            
+            const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+            const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+            
+            yawObject.rotation.y -= movementX * 0.002;
+            pitchObject.rotation.x -= movementY * 0.002;
+            pitchObject.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+            
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+        
+        function onClick(event) {
+            if (!isLocked) return;
+            
+            // Cast ray from camera
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const intersects = raycaster.intersectObjects(interactableObjects, true);
+            
+            if (intersects.length > 0) {
+                const object = intersects[0].object.parent;
+                if (object.userData.type === 'energyCore' && !object.userData.scanned) {
+                    object.userData.scanned = true;
+                    scannedObjects++;
+                    document.getElementById('scanned').textContent = scannedObjects;
+                    
+                    // Change color to indicate it's been scanned
+                    object.children.forEach(child => {
+                        if (child.material) {
+                            child.material.color.setHex(0xff00ff);
+                            child.material.emissive.setHex(0xff00ff);
+                        }
+                    });
+                    
+                    energy = Math.min(100, energy + 10);
+                    updateHUD();
+                }
+            }
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function updateHUD() {
+            const pos = yawObject.position;
+            document.getElementById('position').textContent = 
+                `${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}`;
+            document.getElementById('energy').textContent = `${Math.round(energy)}%`;
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+            
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+            velocity.y -= 9.8 * 100.0 * delta;
+            
+            const speed = isRunning ? 800.0 : 400.0;
+            
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize();
+            
+            if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
+            if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
+            
+            yawObject.translateX(velocity.x * delta);
+            yawObject.translateZ(velocity.z * delta);
+            yawObject.position.y += velocity.y * delta;
+            
+            if (yawObject.position.y < 10) {
+                velocity.y = 0;
+                yawObject.position.y = 10;
+                canJump = true;
+            }
+            
+            // Update animated objects
+            interactableObjects.forEach(obj => {
+                if (obj.userData.update) {
+                    obj.userData.update();
+                }
+            });
+            
+            // Drain energy when running
+            if (isRunning && (moveForward || moveBackward || moveLeft || moveRight)) {
+                energy = Math.max(0, energy - 0.1);
+                updateHUD();
+            }
+            
+            prevTime = time;
+            
+            renderer.render(scene, camera);
+        }
+        
+        function startExploration() {
+            document.getElementById('instructions').classList.add('hidden');
+            
+            renderer.domElement.requestPointerLock = 
+                renderer.domElement.requestPointerLock ||
+                renderer.domElement.mozRequestPointerLock ||
+                renderer.domElement.webkitRequestPointerLock;
+            
+            renderer.domElement.requestPointerLock();
+            
+            document.addEventListener('pointerlockchange', lockChangeAlert, false);
+            document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+            document.addEventListener('webkitpointerlockchange', lockChangeAlert, false);
+        }
+        
+        function lockChangeAlert() {
+            if (document.pointerLockElement === renderer.domElement ||
+                document.mozPointerLockElement === renderer.domElement ||
+                document.webkitPointerLockElement === renderer.domElement) {
+                isLocked = true;
+            } else {
+                isLocked = false;
+                document.getElementById('instructions').classList.remove('hidden');
+            }
+        }
+        
+        // Initialize the world
+        init();
+    </script>
+</body>
+</html>
+
