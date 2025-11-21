@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPS Plans - Mission Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow px-8 py-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4">VPS Hosting Solutions</h1>
+                <p class="text-gray-400 text-xl">High-performance virtual private servers for your workloads</p>
+            </div>
+            
+            <!-- Pricing toggle -->
+            <div class="flex justify-center mb-12">
+                <div class="bg-gray-900 rounded-lg p-1 inline-flex">
+                    <button id="monthlyBtn" class="hover:bg-accent hover:text-dark transition-all transform hover:scale-105  px-6 py-2 rounded-md duration-300 billing-btn active">Monthly</button>
+                    <button id="yearlyBtn" class="hover:bg-accent hover:text-dark transition-all transform hover:scale-105  px-6 py-2 rounded-md duration-300 billing-btn active">Yearly (Save 20%)</button>
+                </div>
+            </div>
+            
+            <!-- VPS Plans Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <!-- Starter Plan -->
+                <div class="vps-card bg-gray-900 rounded-lg p-8 border border-gray-800 hover:border-accent transition-all duration-300">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Starter</h3>
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-accent">$<span class="price">29</span></span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">vCPUs</span>
+                            <span class="font-semibold">2</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">RAM</span>
+                            <span class="font-semibold">4 GB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Storage</span>
+                            <span class="font-semibold">80 GB SSD</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Bandwidth</span>
+                            <span class="font-semibold">4 TB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">GPU</span>
+                            <span class="font-semibold">-</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full button-secondary">Select Plan</button>
+                </div>
+                
+                <!-- Professional Plan -->
+                <div class="vps-card bg-gray-900 rounded-lg p-8 border-2 border-accent relative hover:scale-105 transition-all duration-300">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-dark px-4 py-1 rounded-full text-sm font-semibold">
+                        POPULAR
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Professional</h3>
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-accent">$<span class="price">79</span></span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">vCPUs</span>
+                            <span class="font-semibold">4</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">RAM</span>
+                            <span class="font-semibold">16 GB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Storage</span>
+                            <span class="font-semibold">320 GB NVMe</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Bandwidth</span>
+                            <span class="font-semibold">8 TB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">GPU</span>
+                            <span class="font-semibold">RTX 4000</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full button-accent">Select Plan</button>
+                </div>
+                
+                <!-- Enterprise Plan -->
+                <div class="vps-card bg-gray-900 rounded-lg p-8 border border-gray-800 hover:border-accent transition-all duration-300">
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
+                        <div class="flex items-baseline">
+                            <span class="text-4xl font-bold text-accent">$<span class="price">199</span></span>
+                            <span class="text-gray-500 ml-2">/month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">vCPUs</span>
+                            <span class="font-semibold">8</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">RAM</span>
+                            <span class="font-semibold">32 GB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Storage</span>
+                            <span class="font-semibold">1 TB NVMe</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Bandwidth</span>
+                            <span class="font-semibold">20 TB</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">GPU</span>
+                            <span class="font-semibold">A100</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full button-secondary">Select Plan</button>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                <div class="text-center">
+                    <i data-feather="zap" class="w-12 h-12 text-accent mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-2">Lightning Fast</h4>
+                    <p class="text-sm text-gray-400">NVMe SSD storage and 99.9% uptime</p>
+                </div>
+                <div class="text-center">
+                    <i data-feather="shield" class="w-12 h-12 text-accent mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-2">DDoS Protection</h4>
+                    <p class="text-sm text-gray-400">Advanced security features included</p>
+                </div>
+                <div class="text-center">
+                    <i data-feather="server" class="w-12 h-12 text-accent mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-2">Auto-Scaling</h4>
+                    <p class="text-sm text-gray-400">Scale resources on demand</p>
+                </div>
+                <div class="text-center">
+                    <i data-feather="headphones" class="w-12 h-12 text-accent mx-auto mb-3"></i>
+                    <h4 class="font-semibold mb-2">24/7 Support</h4>
+                    <p class="text-sm text-gray-400">Expert team always available</p>
+                </div>
+            </div>
+            
+            <!-- CTA Section -->
+            <div class="bg-gray-900 rounded-lg p-8 border border-gray-800 text-center">
+                <h2 class="text-3xl font-bold mb-4">Need a custom solution?</h2>
+                <p class="text-gray-400 mb-6">Contact our sales team for enterprise-grade configurations</p>
+                <a href="mailto:sales@missionbrains.ai" class="button-accent">Contact Sales</a>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Pricing toggle
+        const monthlyBtn = document.getElementById('monthlyBtn');
+        const yearlyBtn = document.getElementById('yearlyBtn');
+        const priceElements = document.querySelectorAll('.price');
+        
+        const monthlyPrices = [29, 79, 199];
+        const yearlyPrices = [23, 63, 159]; // 20% discount
+        
+        function updatePrices(isYearly) {
+            const prices = isYearly ? yearlyPrices : monthlyPrices;
+            priceElements.forEach((el, index) => {
+                el.textContent = prices[index];
+            });
+            
+            // Update button text
+            document.querySelectorAll('.vps-card button').forEach(btn => {
+                if (isYearly) {
+                    btn.textContent = 'Select Plan (Yearly)';
+                } else {
+                    btn.textContent = 'Select Plan';
+                }
+            });
+        }
+        
+        monthlyBtn.addEventListener('click', () => {
+            monthlyBtn.classList.add('active', 'bg-accent', 'text-dark');
+            monthlyBtn.classList.remove('text-gray-400');
+            yearlyBtn.classList.remove('active', 'bg-accent', 'text-dark');
+            yearlyBtn.classList.add('text-gray-400');
+            updatePrices(false);
+        });
+        
+        yearlyBtn.addEventListener('click', () => {
+            yearlyBtn.classList.add('active', 'bg-accent', 'text-dark');
+            yearlyBtn.classList.remove('text-gray-400');
+            monthlyBtn.classList.remove('active', 'bg-accent', 'text-dark');
+            monthlyBtn.classList.add('text-gray-400');
+            updatePrices(true);
+        });
+        // Handle plan selection
+        document.querySelectorAll('.vps-card button').forEach((btn, index) => {
+            btn.addEventListener('click', function() {
+                const planNames = ['Starter', 'Professional', 'Enterprise'];
+                const selectedPlan = {
+                    name: planNames[index],
+                    price: monthlyBtn.classList.contains('active') ? monthlyPrices[index] : yearlyPrices[index],
+                    billing: yearlyBtn.classList.contains('active') ? 'yearly' : 'monthly'
+                };
+                
+                // Store selection and redirect
+                localStorage.setItem('selectedVPSPlan', JSON.stringify(selectedPlan));
+                
+                // Show selection feedback briefly
+                const originalText = this.textContent;
+                this.innerHTML = '<i data-feather="check" class="inline w-5 h-5 mr-2"></i>Selected';
+                this.disabled = true;
+                feather.replace();
+                
+                // Redirect to checkout
+                setTimeout(() => {
+                    window.location.href = 'checkout.html';
+                }, 500);
+            });
+        });
+// Initialize
+        feather.replace();
+    </script>
+</body>
+</html>

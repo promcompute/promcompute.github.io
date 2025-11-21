@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful - Mission Brains</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'dark': '#0f0f0f',
+                        'accent': '#00ff99',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark text-white font-mono min-h-screen flex flex-col">
+    <custom-navbar></custom-navbar>
+    
+    <main class="flex-grow px-8 py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <div class="mb-6">
+                    <i data-feather="check-circle" class="w-24 h-24 text-accent mx-auto"></i>
+                </div>
+                <h1 class="text-4xl font-bold mb-4">Order Successful!</h1>
+                <p class="text-gray-400 text-xl">Your VPS is being provisioned</p>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- Order Details -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold mb-4">Order Details</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <span class="text-gray-500 text-sm">Order ID</span>
+                                <div class="font-semibold">#MB-{Math.random().toString(36).substring(2, 11).toUpperCase()}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-sm">Plan</span>
+                                <div class="font-semibold">Professional Plan</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-sm">Status</span>
+                                <div class="font-semibold text-accent">Provisioning</div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <span class="text-gray-500 text-sm">Server Location</span>
+                                <div class="font-semibold">United States (East)</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-sm">Operating System</span>
+                                <div class="font-semibold">Ubuntu 22.04 LTS</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 text-sm">Estimated Ready</span>
+                                <div class="font-semibold">2-5 minutes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Next Steps -->
+                <div class="bg-gray-900 rounded-lg p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold mb-4">What's Next?</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-accent">1.</span>
+                            <div>
+                                <div class="font-semibold">Check your email</div>
+                                <div class="text-sm text-gray-400">We've sent your order confirmation and login details</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-accent">2.</span>
+                            <div>
+                                <div class="font-semibold">Wait for provisioning</div>
+                                <div class="text-sm text-gray-400">Your server will be ready in 2-5 minutes</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-accent">3.</span>
+                            <div>
+                                <div class="font-semibold">Access your dashboard</div>
+                                <div class="text-sm text-gray-400">Manage your VPS from the client portal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="button-accent">
+                        <i data-feather="external-link" class="inline w-5 h-5 mr-2"></i>
+                        Go to Dashboard
+                    </button>
+                    <a href="index.html" class="inline-block">
+                        <button class="button-secondary">
+                            <i data-feather="home" class="inline w-5 h-5 mr-2"></i>
+                            Back to Home
+                        </button>
+                    </a>
+                </div>
+                
+                <!-- Support Info -->
+                <div class="text-center text-gray-400">
+                    <p>Need help? Contact our support team at <a href="mailto:promcompute@protonmail.com" class="text-accent">support@missionbrains.ai</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <custom-footer></custom-footer>
+    
+    <script src="components/navbar.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="script.js"></script>
+    <script>feather.replace();</script>
+</body>
+</html>
